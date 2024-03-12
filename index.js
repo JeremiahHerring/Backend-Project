@@ -3,6 +3,7 @@ require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const bookingRoute = require('./routes/bookingRoute')
+const userRoute = require('./routes/userRoute')
 
 const app = express();
 app.use(express.json())
@@ -19,4 +20,6 @@ mongoose
   .catch((error) => console.log(error));
 
   app.use('/bookings', bookingRoute)
+  app.use('/api', userRoute)
+
 
