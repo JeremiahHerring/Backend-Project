@@ -21,20 +21,49 @@ const authenticateToken = (req, res, next) => {
 router.post('/', authenticateToken, async (req, res) => {
     const bookingData = req.body;
     bookingData.user = req.user.email; // Associate booking with user's email
-    
+
     try {
         const booking = new Booking(bookingData);
         await booking.save();
 
-    // Update user with the booking destination
-    await User.findOneAndUpdate(
-        { email: req.user.email }, // Find user by email
-        { $set: { booking_destinations: booking.destination } }, // Update destination field
-        { new: true } // Return the updated document
-    );
+        // Update user with the booking destination and push booking ID into bookings array
+        await User.findOneAndUpdate(
+            { email: req.user.email }, // Find user by email
+            { 
+                $set: { booking_destinations: booking.destination },
+                $push: { bookings: booking._id }
+            },
+            { new: true } // Return the updated document
+        );
+
         res.status(201).send(booking);
     } catch (error) {
         res.status(500).send(error);
+    }
+});
+
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        // Find and delete the booking
+        const booking = await Booking.findByIdAndDelete(req.params.id);
+        if (!booking) {
+            return res.status(404).send(); // Send 404 if booking not found
+        }
+
+        // Remove booking reference from the user's bookings array
+        await User.findOneAndUpdate(
+            { email: req.user.email },
+            {   
+                $pull: { bookings: booking._id },
+                $unset: { booking_destinations: "" } 
+            }
+        );
+
+        res.status(200).send(booking); // Send 200 with deleted booking
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        res.status(500).send("Internal Server Error"); // Send a generic error response
     }
 });
 
