@@ -4,6 +4,19 @@ const User = require('../models/user')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+// Middleware to verify JWT token
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) return res.sendStatus(401); // Unauthorized
+
+    jwt.verify(token, 'secret123', (err, user) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        req.user = user;
+        next();
+    });
+}
+
 // Create a new user
 router.post('/register', async (req, res) => {
     try {
@@ -46,6 +59,18 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Delete User with authentication
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id)
+        if (!user) {
+            res.status(404).send()
+        }
+        res.send(user)
+    }catch(error){
+        res.status(500).send(error)
+    }
+})
 
 
 module.exports = router
