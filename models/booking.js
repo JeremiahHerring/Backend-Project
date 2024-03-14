@@ -4,7 +4,9 @@ const bookingSchema = new mongoose.Schema({
     'booking_date' : { type : Date , default: Date.now },
     'destination' : { type : String, required: true},
     'arrival_date' : { type : Date , required: true },
-    'departure_date' : { type : Date , required: true }
+    'departure_date' : { type : Date , required: true },
+    user: { type: String, required: true }
+
 },{
     collection: 'bookings'
 }
