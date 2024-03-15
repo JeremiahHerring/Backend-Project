@@ -17,6 +17,18 @@ const authenticateToken = (req, res, next) => {
     });
 }
 
+const authenticateAdminToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) return res.sendStatus(401); // Unauthorized
+
+    jwt.verify(token, 'admin', (err, user) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        req.user = user;
+        next();
+    });
+}
+
 // Create a new user
 router.post('/register', async (req, res) => {
     try {
@@ -59,16 +71,13 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Delete User with authentication
-router.delete('/:id', authenticateToken, async (req, res) => {
+// Retrieve all user information (only admin access)
+router.get('/', authenticateAdminToken, async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(req.params.id)
-        if (!user) {
-            res.status(404).send()
-        }
-        res.send(user)
-    }catch(error){
-        res.status(500).send(error)
+        const users = await User.find()
+        res.status(200).send(users)
+    } catch (error) {
+        res.status(500).send("Internal Server Error")
     }
 })
 
@@ -99,5 +108,18 @@ router.patch('/:id', authenticateToken, async (req, res) => {
         res.status(500).send("Internal Server Error");
     }
 });
+
+// Delete User with authentication
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.params.id)
+        if (!user) {
+            res.status(404).send()
+        }
+        res.send(user)
+    }catch(error){
+        res.status(500).send(error)
+    }
+})
 
 module.exports = router
