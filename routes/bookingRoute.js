@@ -3,6 +3,7 @@ router = express.Router()
 const Booking = require('../models/booking')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { restart } = require('nodemon')
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -11,6 +12,19 @@ const authenticateToken = (req, res, next) => {
     if (!token) return res.sendStatus(401); // Unauthorized
 
     jwt.verify(token, 'secret123', (err, user) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        req.user = user;
+        next();
+    });
+}
+
+// Middleware to verify admin JWT token
+const authenticateAdminToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) return res.sendStatus(401); // Unauthorized
+
+    jwt.verify(token, 'admin', (err, user) => {
         if (err) return res.sendStatus(403); // Forbidden
         req.user = user;
         next();
@@ -67,19 +81,21 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Retrieve All Bookings (Only admin should be able to do this)
-router.get('/', async (req, res) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token == null) return res.sendStatus(401);
-
+router.patch('/:id', authenticateToken, async (req, res) => {
     try {
-        const decoded = jwt.verify(token, 'admin');
-        if (!decoded) {
-            return res.status(403).json({ status: 'error', error: 'User does not have access' });
+        const booking = await booking.findByIdAndUpdate(req.params.id, req.body, {new:true})
+        if (!booking) {
+            res.status(404).send()
         }
+        res.status(200).send(booking)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
 
+// Retrieve All Bookings (Only admin should be able to do this)
+router.get('/', authenticateAdminToken, async (req, res) => {
+    try {
         const bookings = await Booking.find();
         res.status(200).json(bookings);
     } catch (error) {
