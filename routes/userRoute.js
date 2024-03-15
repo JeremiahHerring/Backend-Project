@@ -81,6 +81,11 @@ router.get('/', authenticateAdminToken, async (req, res) => {
     }
 })
 
+// TODO: Allow user to retrieve their own information from the database
+
+
+
+
 // Update user information 
 router.patch('/:id', authenticateToken, async (req, res) => {
     try {
