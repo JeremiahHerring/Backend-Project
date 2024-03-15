@@ -55,50 +55,6 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-router.delete('/:id', authenticateToken, async (req, res) => {
-    try {
-        // Find and delete the booking
-        const booking = await Booking.findByIdAndDelete(req.params.id);
-        if (!booking) {
-            return res.status(404).send(); // Send 404 if booking not found
-        }
-
-        // Remove booking reference from the user's bookings array
-        await User.findOneAndUpdate(
-            { email: req.user.email },
-            {   
-                $pull: { bookings: booking._id },
-                $unset: { booking_destinations: "" } 
-            }
-        );
-
-        res.status(200).send(booking); // Send 200 with deleted booking
-    } catch (error) {
-        console.error(error); // Log the error for debugging
-        res.status(500).send("Internal Server Error"); // Send a generic error response
-    }
-});
-
-// Update Existing Booking
-router.patch('/:id', authenticateToken, async (req, res) => {
-    try {
-        const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {new:true})
-        if (!booking) {
-            res.status(404).send("Booking not found")
-        }
-        // Update the user's booking destination
-        await User.findOneAndUpdate(
-            { email: req.user.email }, 
-            { $set: { booking_destinations: booking.destination }},
-            { new: true }
-        );
-        res.status(200).send(booking)
-    } catch (error) {
-        console.log(error)
-        res.status(500).send(error)
-    }
-})
-
 // Retrieve All Bookings (Only admin should be able to do this)
 router.get('/', authenticateAdminToken, async (req, res) => {
     try {
@@ -122,5 +78,49 @@ router.get('/:id', authenticateToken, async (req, res) => {
         res.status(500).send("Internal Server Error")
     }
 })
+
+// Update Existing Booking
+router.patch('/:id', authenticateToken, async (req, res) => {
+    try {
+        const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {new:true})
+        if (!booking) {
+            res.status(404).send("Booking not found")
+        }
+        // Update the user's booking destination
+        await User.findOneAndUpdate(
+            { email: req.user.email }, 
+            { $set: { booking_destinations: booking.destination }},
+            { new: true }
+        );
+        res.status(200).send(booking)
+    } catch (error) {
+        console.log(error)
+        res.status(500).send(error)
+    }
+})
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+    try {
+        // Find and delete the booking
+        const booking = await Booking.findByIdAndDelete(req.params.id);
+        if (!booking) {
+            return res.status(404).send(); // Send 404 if booking not found
+        }
+
+        // Remove booking reference from the user's bookings array
+        await User.findOneAndUpdate(
+            { email: req.user.email },
+            {   
+                $pull: { bookings: booking._id },
+                $unset: { booking_destinations: "" } 
+            }
+        );
+
+        res.status(200).send(booking); // Send 200 with deleted booking
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        res.status(500).send("Internal Server Error"); // Send a generic error response
+    }
+});
 
 module.exports = router
