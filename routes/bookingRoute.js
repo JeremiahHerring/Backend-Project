@@ -67,4 +67,25 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Retrieve All Bookings (Only admin should be able to do this)
+router.get('/', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, 'admin');
+        if (!decoded) {
+            return res.status(403).json({ status: 'error', error: 'User does not have access' });
+        }
+
+        const bookings = await Booking.find();
+        res.status(200).json(bookings);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: 'error', error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router
