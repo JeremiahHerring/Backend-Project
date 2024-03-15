@@ -3,7 +3,6 @@ router = express.Router()
 const Booking = require('../models/booking')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
-const { restart } = require('nodemon')
 
 // Middleware to verify JWT token
 const authenticateToken = (req, res, next) => {
@@ -56,7 +55,6 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         // Find and delete the booking
@@ -81,14 +79,22 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Update Existing Booking
 router.patch('/:id', authenticateToken, async (req, res) => {
     try {
-        const booking = await booking.findByIdAndUpdate(req.params.id, req.body, {new:true})
+        const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {new:true})
         if (!booking) {
-            res.status(404).send()
+            res.status(404).send("Booking not found")
         }
+        // Update the user's booking destination
+        await User.findOneAndUpdate(
+            { email: req.user.email }, 
+            { $set: { booking_destinations: booking.destination }},
+            { new: true }
+        );
         res.status(200).send(booking)
     } catch (error) {
+        console.log(error)
         res.status(500).send(error)
     }
 })
