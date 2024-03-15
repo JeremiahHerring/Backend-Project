@@ -110,4 +110,17 @@ router.get('/', authenticateAdminToken, async (req, res) => {
     }
 });
 
+// Retrieve one booking (User has to be verified)
+router.get('/:id', authenticateToken, async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id)
+        if (!booking) {
+            res.status(400).send("Booking doesn't exist")
+        }
+        res.status(200).send(booking)
+    } catch (error) {
+        res.status(500).send("Internal Server Error")
+    }
+})
+
 module.exports = router
