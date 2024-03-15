@@ -72,5 +72,34 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 })
 
+// Update user information 
+router.patch('/:id', authenticateToken, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Verify if the current user is the same as the user being updated
+        if (req.user.email !== email) {
+            return res.status(403).send("You are not allowed to update other users");
+        }
+
+        // Hash the new password if it's being updated
+        if (password) {
+            req.body.password = await bcrypt.hash(password, 10);
+        }
+
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.status(200).send(user);
+    } catch(error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
 
 module.exports = router
