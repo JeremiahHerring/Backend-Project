@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const bookingRoute = require('./routes/bookingRoute')
 const userRoute = require('./routes/userRoute')
 const adminRoute = require('./routes/adminRoute')
+const travelAgentRoute = require('./routes/travelAgentRoute')
 
 const app = express();
 app.use(express.json())
@@ -23,5 +24,6 @@ mongoose
 app.use('/bookings', bookingRoute)
 app.use('/api', userRoute)
 app.use('/api/admin', adminRoute)
+app.use('/api/travelAgent', travelAgentRoute)
 
 

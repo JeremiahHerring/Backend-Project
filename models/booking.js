@@ -5,8 +5,8 @@ const bookingSchema = new mongoose.Schema({
     'destination' : { type : String, required: true},
     'arrival_date' : { type : Date , required: true },
     'departure_date' : { type : Date , required: true },
-    user: { type: String, required: true }
-
+    user: { type: String, required: true },
+    travel_agent: { type: mongoose.Schema.Types.ObjectId, ref: 'TravelAgent' }
 },{
     collection: 'bookings'
 }
