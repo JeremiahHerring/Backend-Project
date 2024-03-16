@@ -81,10 +81,19 @@ router.get('/', authenticateAdminToken, async (req, res) => {
     }
 })
 
-// TODO: Allow user to retrieve their own information from the database
+// Retrieve info from one user with user authentication
+router.get('/:id', authenticateToken, async (req, res) => {
+    try {  
+        const user = await User.findById(req.params.id)
+        if (!user) {
+            res.status(404).send("User not found")
+        }
+        res.status(200).send(user)
 
-
-
+    } catch (error) {
+        res.status(500).send("Internal Server Error")
+    }
+})
 
 // Update user information 
 router.patch('/:id', authenticateToken, async (req, res) => {
