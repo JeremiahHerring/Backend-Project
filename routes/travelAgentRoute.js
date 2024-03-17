@@ -5,6 +5,19 @@ const jwt = require('jsonwebtoken')
 const TravelAgent = require('../models/travelAgent')
 const Booking = require('../models/booking')
 
+// Middleware to verify travelAgent JWT token
+const authenticateTravelAgentToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) return res.sendStatus(401); // Unauthorized
+
+    jwt.verify(token, 'travel', (err, travel_agent) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        req.travel_agent = travel_agent;
+        next();
+    });
+}
+
 // Register a travel agent
 router.post('/register', async (req, res) => {
     try {
@@ -38,6 +51,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// Travel Agent Login
 router.post('/login', async (req, res) => {
     const travelAgent = await TravelAgent.findOne({ email: req.body.email });
 
@@ -46,7 +60,7 @@ router.post('/login', async (req, res) => {
     }
 
     const isPasswordValid = await bcrypt.compare(req.body.password, travelAgent.password);
-
+    
     if (isPasswordValid) {
         const token = jwt.sign(
             {
@@ -62,5 +76,59 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Retrieve info from one travel agent (travel agent access)
+router.get('/:id', authenticateTravelAgentToken, async (req, res) => {
+    try {  
+        const travelAgent = await TravelAgent.findById(req.params.id)
+        if (!travelAgent) {
+            res.status(404).send("Travel agent not found")
+        }
+        res.status(200).send(travelAgent)
+
+    } catch (error) {
+        res.status(500).send("Internal Server Error")
+    }
+})
+
+// Update travel agent information (travel agent access)
+router.patch('/:id', authenticateTravelAgentToken, async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        // Verify if the current user is the same as the user being updated
+        if (req.travelAgent.email !== email) {
+            return res.status(403).send("You are not allowed to update other travel agents");
+        }
+
+        // Hash the new password if it's being updated
+        if (password) {
+            req.body.password = await bcrypt.hash(password, 10);
+        }
+
+        const travelAgent = await TravelAgent.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+        if (!travelAgent) {
+            return res.status(404).send("User not found");
+        }
+
+        res.status(200).send(user);
+    } catch(error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+// Delete travel agent (travel agent access)
+router.delete('/:id', authenticateTravelAgentToken, async (req, res) => {
+    try {
+        const travelAgent = await TravelAgent.findByIdAndDelete(req.params.id)
+        if (!travelAgent) {
+            res.status(404).send()
+        }
+        res.send(travelAgent)
+    }catch(error){
+        res.status(500).send(error)
+    }
+})
 
 module.exports = router

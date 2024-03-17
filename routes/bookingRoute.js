@@ -23,9 +23,9 @@ const authenticateAdminToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) return res.sendStatus(401); // Unauthorized
 
-    jwt.verify(token, 'admin', (err, user) => {
+    jwt.verify(token, 'admin', (err, admin) => {
         if (err) return res.sendStatus(403); // Forbidden
-        req.user = user;
+        req.admin = admin;
         next();
     });
 }
@@ -36,9 +36,9 @@ const authenticateTravelAgentToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) return res.sendStatus(401); // Unauthorized
 
-    jwt.verify(token, 'travel', (err, user) => {
+    jwt.verify(token, 'travel', (err, travel_agent) => {
         if (err) return res.sendStatus(403); // Forbidden
-        req.user = user;
+        req.travel_agent = travel_agent;
         next();
     });
 }
