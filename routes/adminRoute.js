@@ -4,6 +4,7 @@ const Admin = require('../models/admin')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+// Register an admin
 router.post("/register", async (req, res) => {
     try{
         const newPassword = await bcrypt.hash(req.body.password, 10)
@@ -20,6 +21,7 @@ router.post("/register", async (req, res) => {
     }
 })
 
+// Admin Login 
 router.post('/login', async (req, res) => {
     const admin = await Admin.findOne({
         email: req.body.email
@@ -42,11 +44,13 @@ router.post('/login', async (req, res) => {
             },
             'admin'
         )
-
+        // Return Admin JWT if successful
         return res.json({status:'Ok', admin:token})
     }else{
         return res.json({status: 'error', admin: false})
     }
 })
+
+
 
 module.exports = router

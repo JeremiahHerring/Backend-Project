@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema({
     'password' : { type : String , required: true },
     booking_destinations: { type: String },
     bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }]
-
 },{
     collection: 'users'
 }

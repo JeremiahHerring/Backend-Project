@@ -10,7 +10,7 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) return res.sendStatus(401); // Unauthorized
 
-    jwt.verify(token, 'secret123', (err, user) => {
+    jwt.verify(token, 'user', (err, user) => {
         if (err) return res.sendStatus(403); // Forbidden
         req.user = user;
         next();
@@ -44,7 +44,7 @@ const authenticateTravelAgentToken = (req, res, next) => {
 }
 
 
-// Create a booking (protected route)
+// Create a booking (user access only)
 router.post('/', authenticateToken, async (req, res) => {
     const bookingData = req.body;
     bookingData.user = req.user.email; // Associate booking with user's email
@@ -69,7 +69,7 @@ router.post('/', authenticateToken, async (req, res) => {
     }
 });
 
-// Retrieve All Bookings (Only admin should be able to do this)
+// Retrieve All Bookings (ADMIN ONLY ACCESS)
 router.get('/', authenticateAdminToken, async (req, res) => {
     try {
         const bookings = await Booking.find();
@@ -80,7 +80,7 @@ router.get('/', authenticateAdminToken, async (req, res) => {
     }
 });
 
-// Retrieve one booking (User has to be verified)
+// Retrieve one booking (only user access)
 router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id)
@@ -113,6 +113,7 @@ router.patch('/:id', authenticateTravelAgentToken, async (req, res) => {
     }
 })
 
+// Delete a booking (only travel agent access)
 router.delete('/:id', authenticateTravelAgentToken, async (req, res) => {
     try {
         // Find and delete the booking

@@ -10,13 +10,14 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]
     if (!token) return res.sendStatus(401); // Unauthorized
 
-    jwt.verify(token, 'secret123', (err, user) => {
+    jwt.verify(token, 'user', (err, user) => {
         if (err) return res.sendStatus(403); // Forbidden
         req.user = user;
         next();
     });
 }
 
+// Middleware to verify an admin
 const authenticateAdminToken = (req, res, next) => {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
@@ -62,9 +63,9 @@ router.post('/login', async (req, res) => {
                 name: user.name,
                 email: user.email
             },
-            'secret123'
+            'user'
         );
-
+        // Retrieve user JWT if successful
         return res.json({ status: 'Ok', user: token });
     } else {
         return res.json({ status: 'error', user: false });
@@ -81,7 +82,7 @@ router.get('/', authenticateAdminToken, async (req, res) => {
     }
 })
 
-// Retrieve info from one user with user authentication
+// Retrieve info from one user (user access)
 router.get('/:id', authenticateToken, async (req, res) => {
     try {  
         const user = await User.findById(req.params.id)
@@ -95,7 +96,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
     }
 })
 
-// Update user information 
+// Update user information (user access)
 router.patch('/:id', authenticateToken, async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -123,7 +124,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Delete User with authentication
+// Delete User (user access)
 router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id)
