@@ -38,6 +38,29 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.post('/login', async (req, res) => {
+    const travelAgent = await TravelAgent.findOne({ email: req.body.email });
+
+    if (!travelAgent) {
+        return res.json({ status: 'error', error: 'Invalid Login' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(req.body.password, travelAgent.password);
+
+    if (isPasswordValid) {
+        const token = jwt.sign(
+            {
+                name: travelAgent.name,
+                email: travelAgent.email
+            },
+            'travel'
+        );
+
+        return res.json({ status: 'Ok', travelAgent: token });
+    } else {
+        return res.json({ status: 'error', travelAgent: false });
+    }
+});
 
 
 module.exports = router

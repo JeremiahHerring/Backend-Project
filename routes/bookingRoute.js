@@ -30,6 +30,20 @@ const authenticateAdminToken = (req, res, next) => {
     });
 }
 
+// Middleware to verify travelAgent JWT token
+const authenticateTravelAgentToken = (req, res, next) => {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    if (!token) return res.sendStatus(401); // Unauthorized
+
+    jwt.verify(token, 'travel', (err, user) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        req.user = user;
+        next();
+    });
+}
+
+
 // Create a booking (protected route)
 router.post('/', authenticateToken, async (req, res) => {
     const bookingData = req.body;
@@ -79,8 +93,8 @@ router.get('/:id', authenticateToken, async (req, res) => {
     }
 })
 
-// Update Existing Booking
-router.patch('/:id', authenticateToken, async (req, res) => {
+// Update Existing Booking (only travel agent access)
+router.patch('/:id', authenticateTravelAgentToken, async (req, res) => {
     try {
         const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {new:true})
         if (!booking) {
@@ -88,7 +102,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
         }
         // Update the user's booking destination
         await User.findOneAndUpdate(
-            { email: req.user.email }, 
+            { email: booking.user }, 
             { $set: { booking_destinations: booking.destination }},
             { new: true }
         );
@@ -99,7 +113,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
     }
 })
 
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateTravelAgentToken, async (req, res) => {
     try {
         // Find and delete the booking
         const booking = await Booking.findByIdAndDelete(req.params.id);
@@ -109,7 +123,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
 
         // Remove booking reference from the user's bookings array
         await User.findOneAndUpdate(
-            { email: req.user.email },
+            { email: booking.user },
             {   
                 $pull: { bookings: booking._id },
                 $unset: { booking_destinations: "" } 
