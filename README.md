@@ -10,7 +10,7 @@ This repository contains the backend implementation of a travel booking system, 
 ## Setup Instructions
 1. Clone the repository to your local machine:
    ```bash
-   git clone [<repository-url>](https://github.com/JeremiahHerring/Travel-Booking-System.git)
+   git clone https://github.com/JeremiahHerring/Travel-Booking-System.git
    ```
 2. Navigate into the project directory:
    ```bash
