@@ -1,3 +1,5 @@
+// Contains all user routes
+
 const express = require("express");
 router = express.Router();
 const User = require("../models/user");
@@ -58,7 +60,7 @@ router.post("/login", async (req, res) => {
     req.body.password,
     user.password
   );
-
+  // Create user jwt
   if (isPasswordValid) {
     const token = jwt.sign(
       {

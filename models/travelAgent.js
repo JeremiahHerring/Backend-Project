@@ -1,3 +1,5 @@
+// Schema for travel agent
+
 const mongoose = require("mongoose");
 
 const travelAgentSchema = new mongoose.Schema(

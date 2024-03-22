@@ -1,3 +1,5 @@
+// Contains all admin routes
+
 const express = require("express");
 router = express.Router();
 const Admin = require("../models/admin");
@@ -20,6 +22,7 @@ const authenticateAdminToken = (req, res, next) => {
 // Register an admin
 router.post("/register", async (req, res) => {
   try {
+    // Encrypt password using bcryp
     const newPassword = await bcrypt.hash(req.body.password, 10);
     await Admin.create({
       name: req.body.name,
@@ -27,7 +30,7 @@ router.post("/register", async (req, res) => {
       password: newPassword,
     });
 
-    res.status(200).send("Admin Added to the Database");
+    res.status(200).send("Admin Added to the Database"); 
   } catch (err) {
     res.json({ staus: "error", error: "Duplicate email" });
   }
@@ -47,14 +50,14 @@ router.post("/login", async (req, res) => {
     req.body.password,
     admin.password
   );
-
+  // Create admin jwt
   if (isPasswordValid) {
     const token = jwt.sign(
       {
         name: admin.name,
         email: admin.email,
       },
-      "admin"
+      "admin" 
     );
     // Return Admin JWT if successful
     return res.json({ status: "Ok", admin: token });

@@ -59,6 +59,10 @@ This repository contains the backend implementation of a travel booking system, 
 - **PATCH api/travelAgent/:id**: Update travel agent details.
 - **DELETE /api/travelAgent/:id**: Delete an travel agent.
 
+## User Roles and Permissions
+- User: Users have access to view bookings they created. They can perform CRUD operations on their own accounts.
+- Admin: Admins has access to view all bookings and view all users. They can perform CRUD operatons on their own accounts.
+- Travel Agent: Travel agents have access to update and delete user bookings. They can perform CRUD operations on their own accounts.
 
 ## Authentication
 Different endpoints may require different levels of authentication. Ensure you're providing the required authentication tokens in the request headers.

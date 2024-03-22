@@ -1,3 +1,5 @@
+// Contains all Booking routes
+
 const express = require("express");
 router = express.Router();
 const Booking = require("../models/booking");

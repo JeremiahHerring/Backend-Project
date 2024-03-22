@@ -1,3 +1,5 @@
+// Contains all travel agent routes
+
 const express = require("express");
 router = express.Router();
 const bcrypt = require("bcrypt");
@@ -65,7 +67,7 @@ router.post("/login", async (req, res) => {
     req.body.password,
     travelAgent.password
   );
-
+  // Create travel agent jwt
   if (isPasswordValid) {
     const token = jwt.sign(
       {
