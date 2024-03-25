@@ -8,7 +8,7 @@ const travelAgentSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     specializations: [String],
-    managed_bookings: { type: mongoose.Schema.Types.ObjectId, ref: "Booking" },
+    managed_bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Booking" }],
   },
   {
     collection: "travel_agents",
