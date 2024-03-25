@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    booking_destinations: { type: String },
+    booking_destinations: [String],
     bookings: [{ type: mongoose.Schema.Types.ObjectId, ref: "Booking" }],
   },
   {
@@ -15,6 +15,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-const User = new mongoose.model("user", userSchema);
+const User = new mongoose.model("User", userSchema);
 
 module.exports = User;

@@ -58,8 +58,10 @@ router.post("/", authenticateToken, async (req, res) => {
     await User.findOneAndUpdate(
       { email: req.user.email }, // Find user by email
       {
-        $set: { booking_destinations: booking.destination },
-        $push: { bookings: booking._id },
+        $push: {
+          booking_destinations: booking.destination,
+          bookings: booking._id,
+        },
       },
       { new: true } // Return the updated document
     );
@@ -69,6 +71,7 @@ router.post("/", authenticateToken, async (req, res) => {
     res.status(500).send(error);
   }
 });
+
 
 // Retrieve All Bookings (ADMIN ONLY ACCESS)
 router.get("/", authenticateAdminToken, async (req, res) => {
