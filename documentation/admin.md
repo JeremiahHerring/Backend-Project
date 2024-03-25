@@ -1,4 +1,4 @@
-##All Admin Endpoints
+# All Admin Endpoints
 
 ## Register a New Admin
 - URL: `/api/admin/register`

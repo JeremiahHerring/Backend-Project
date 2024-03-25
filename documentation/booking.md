@@ -1,4 +1,4 @@
-## All Booking Endpoints
+# All Booking Endpoints
 
 ## Create a New Booking
 - URL: `/bookings`

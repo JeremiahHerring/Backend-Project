@@ -1,4 +1,4 @@
-### Authentication Documentation
+# Authentication Documentation
 ## Overview
 This document outlines the authentication mechanisms implemented in our application, including user authentication, admin authentication, and travel agent authentication.
 

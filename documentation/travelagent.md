@@ -1,4 +1,4 @@
-## All Travel Agent Endpoints
+# All Travel Agent Endpoints
 
 ## Register New Travel Agent
 - URL: `/api/travelAgent/register`

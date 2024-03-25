@@ -1,4 +1,4 @@
-## All User Endpoints
+# All User Endpoints
 
 ## Register New User
 - URL: `/api/register`
@@ -39,7 +39,7 @@ Response:
 - URL: `/api`
 - Method: `GET`
 - Description: Get all user's details.
-- Authentication: User access token required.
+- Authentication: Admin access token required.
 
 Response:
 - Success: 200 OK with array of user's details.
