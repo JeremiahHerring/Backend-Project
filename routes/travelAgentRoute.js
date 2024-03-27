@@ -15,7 +15,7 @@ const authenticateTravelAgentToken = (req, res, next) => {
 
   jwt.verify(token, "travel", (err, travel_agent) => {
     if (err) return res.sendStatus(403); // Forbidden
-    req.travel_agent = travel_agent;
+    req.travelAgent = travel_agent;
     next();
   });
 };
@@ -101,7 +101,7 @@ router.patch("/:id", authenticateTravelAgentToken, async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Verify if the current user is the same as the user being updated
+    // Verify if the current travel agent is the same as the user being updated
     if (req.travelAgent.email !== email) {
       return res
         .status(403)
@@ -123,7 +123,7 @@ router.patch("/:id", authenticateTravelAgentToken, async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    res.status(200).send(user);
+    res.status(200).send(travelAgent);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");

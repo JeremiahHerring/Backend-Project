@@ -4,6 +4,7 @@ const express = require("express");
 router = express.Router();
 const Booking = require("../models/booking");
 const User = require("../models/user");
+const TravelAgent = require("../models/travelAgent")
 const jwt = require("jsonwebtoken");
 
 // Middleware to verify JWT token
@@ -136,7 +137,13 @@ router.delete("/:id", authenticateTravelAgentToken, async (req, res) => {
         $unset: { booking_destinations: "" },
       }
     );
-
+    // Remove booking reference from travel booking managed bookings array
+    await TravelAgent.findOneAndUpdate(
+      { _id: booking.travel_agent},
+      {
+        $pull: {managed_bookings: booking._id}
+      }
+    )
     res.status(200).send(booking); // Send 200 with deleted booking
   } catch (error) {
     console.error(error); // Log the error for debugging

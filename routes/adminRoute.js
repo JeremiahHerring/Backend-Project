@@ -84,7 +84,7 @@ router.patch("/:id", authenticateAdminToken, async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Verify if the current user is the same as the user being updated
+    // Verify if the current admin is the same as the user being updated
     if (req.admin.email !== email) {
       return res.status(403).send("You are not allowed to update other admins");
     }
@@ -102,7 +102,7 @@ router.patch("/:id", authenticateAdminToken, async (req, res) => {
       return res.status(404).send("User not found");
     }
 
-    res.status(200).send(user);
+    res.status(200).send(admin);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
