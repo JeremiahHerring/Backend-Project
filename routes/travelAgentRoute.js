@@ -99,7 +99,7 @@ router.get("/:id", authenticateTravelAgentToken, async (req, res) => {
 // Update travel agent information (travel agent access)
 router.patch("/:id", authenticateTravelAgentToken, async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, managed_bookings } = req.body;
 
     // Verify if the current travel agent is the same as the user being updated
     if (req.travelAgent.email !== email) {
@@ -113,6 +113,15 @@ router.patch("/:id", authenticateTravelAgentToken, async (req, res) => {
       req.body.password = await bcrypt.hash(password, 10);
     }
 
+    // If managed_bookings is updated, update travel agent ID in bookings
+    if (managed_bookings) {
+      await Booking.updateMany(
+        { _id: { $in: managed_bookings } }, // Update all bookings with matching IDs
+        { $set: { travel_agent: req.params.id } } // Set travel_agent field to travel agent's ID
+      );
+    }
+
+    // Update travel agent information
     const travelAgent = await TravelAgent.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -129,6 +138,7 @@ router.patch("/:id", authenticateTravelAgentToken, async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 // Delete travel agent (travel agent access)
 router.delete("/:id", authenticateTravelAgentToken, async (req, res) => {
